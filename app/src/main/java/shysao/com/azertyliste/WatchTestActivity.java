@@ -46,7 +46,7 @@ public class WatchTestActivity extends AppCompatActivity implements View.OnClick
     static final int ID_CONSULT_PASSAGE = 1;
     static final int ID_CONSULT_PASSE = 2;
     String testResult;
-    static final String url = "[adresseIP]:3000/api";
+    static final String url = "192.168.42.174:3000/api";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.WatchTheme);

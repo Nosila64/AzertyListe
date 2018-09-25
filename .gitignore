@@ -30,3 +30,4 @@ proguard/
 
 # Android Studio captures folder
 captures/
+app/src/main/java/shysao/com/azertyliste/WatchActivity.java

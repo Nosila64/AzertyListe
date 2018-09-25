@@ -24,7 +24,7 @@ public class SignActivity extends AppCompatActivity implements View.OnClickListe
     EditText lnameET,fnameET,mailET;
     Spinner  lvlSpin;
     Button btnSignUp;
-    static final String url = "[adresseIP]:3000/api";
+    static final String url = "192.168.42.174:3000/api";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

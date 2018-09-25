@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +24,7 @@ public class SignActivity extends AppCompatActivity implements View.OnClickListe
     EditText lnameET,fnameET,mailET;
     Spinner  lvlSpin;
     Button btnSignUp;
+    static final String url = "192.168.42.174:3000/api";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,11 +90,13 @@ public class SignActivity extends AppCompatActivity implements View.OnClickListe
                 prenomTV.setTextColor(Color.GRAY);
                 String lname = lnameET.getText().toString();
                 String fname = fnameET.getText().toString();
+                lname = lname.substring(0,1).toUpperCase() + lname.substring(1).toLowerCase();
+                fname = fname.substring(0,1).toUpperCase() + fname.substring(1).toLowerCase();
                 String mail = mailET.getText().toString();
                 String lvl = lvlSpin.getSelectedItem().toString();
                 String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                System.out.println(timeStamp);
-                MyWebAsyncTask myWAT = new MyWebAsyncTask("http://192.168.43.61:3000/addPlayer","{\"lnameP\":\""+lname+"\",\"fnameP\":\""+fname+"\",\"mailP\":\""+mail+"\",\"lvlP\":\""+lvl+"\",\"hSignUPP\":\""+timeStamp+"\"}");
+                MyWebAsyncTask myWAT = new MyWebAsyncTask("http://"+url+"/addplayer",
+                        "{\"lnameP\":\""+lname+"\",\"fnameP\":\""+fname+"\",\"mailP\":\""+mail+"\",\"lvlP\":\""+lvl+"\",\"hSignUPP\":\""+timeStamp+"\"}");
                 myWAT.execute();
             }
         }
@@ -142,7 +146,6 @@ public class SignActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-
             if(exception != null)
             {
                 Toast.makeText(SignActivity.this,exception.getMessage(),Toast.LENGTH_LONG).show();

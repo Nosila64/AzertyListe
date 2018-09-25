@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }
         else if(v == btnWatch){
-            Intent intent = new Intent(this, WatchActivity.class);
+            Intent intent = new Intent(this, WatchTestActivity.class);
             startActivity(intent);
         }
 

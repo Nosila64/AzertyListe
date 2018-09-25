@@ -15,4 +15,8 @@
         <item>Calendar</item>
         <item>Browser</item>
     </string-array>
+    <string name="action_settings">Settings</string>
+    <string name="time_set">Set Score</string>
+    <string name="cancel">Annuler</string>
+    <string name="time">Temps: </string>
 </resources>

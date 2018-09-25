@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -21,10 +22,11 @@ import java.util.ArrayList;
 
 import shysao.com.azertyliste.WebService.HttpClientUtil;
 
-public class WatchActivity extends AppCompatActivity {
+public class WatchActivity extends AppCompatActivity implements View.OnClickListener {
     TextView Status;
     static final int ID_CONSULT_PASSAGE = 1;
     static final int ID_CONSULT_PASSE = 2;
+    String testResult;
 
 
     @Override
@@ -49,11 +51,13 @@ public class WatchActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case ID_CONSULT_PASSAGE: {
-                MyWebAsyncTask myWAT = new MyWebAsyncTask("http://192.168.43.122:3000/Player");
+                MyWebAsyncTaskWait myWAT = new MyWebAsyncTaskWait("http://192.168.42.174:3000/Player");
                 myWAT.execute();
                 break;
             }
             case ID_CONSULT_PASSE: {
+                MyWebAsyncTaskOk myWAT = new MyWebAsyncTaskOk("http://192.168.42.174:3000/PlayerOk");
+                myWAT.execute();
                /* tableLayoutP.removeAllViews();
                 tableLayoutW.removeAllViews();
                 tableLayoutW.setVisibility(View.INVISIBLE);
@@ -87,13 +91,89 @@ public class WatchActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
     //TODO: Gérer le listener pour Update le status de passage
-    public class MyWebAsyncTask extends AsyncTask {
+    public class MyWebAsyncTaskWait extends AsyncTask {
         String resultat;
         String url;
         Exception exception;
 
-        public MyWebAsyncTask(String url) {
+        public MyWebAsyncTaskWait(String url) {
+            this.url = url;
+        }
+
+        @Override
+        protected Object doInBackground(Object[] objects) {
+            try {
+                resultat = HttpClientUtil.sendGetOkHttpRequest(url);
+            } catch (Exception e) {
+                exception = e;
+                e.printStackTrace();
+            }
+            return resultat;
+        }
+
+        @Override
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+            TableLayout tableLayoutW = findViewById(R.id.tblLYW);
+            TableLayout tableLayoutP = findViewById(R.id.tblLYP);
+
+            tableLayoutW.setVisibility(View.VISIBLE);
+            tableLayoutP.setVisibility(View.INVISIBLE);
+            tableLayoutW.removeAllViews();
+            tableLayoutP.removeAllViews();
+            Status.setText("Joueurs en attente");
+            Gson jsonResult = new Gson();
+            ResultBean myResult = jsonResult.fromJson(resultat,ResultBean.class);
+            ArrayList<PlayerBean> listePlayerBean = myResult.getResults();
+            for(PlayerBean player: listePlayerBean) {
+                    TableRow tableRow1 = new TableRow(WatchActivity.this);
+                    TextView tv3 = new TextView(WatchActivity.this); // création cellule
+                    tv3.setText(player.getFnameP()); // ajout du texte
+                    tv3.setGravity(Gravity.CENTER); // centrage dans la cellule
+                    // adaptation de la largeur de colonne à l'écran :
+                    tv3.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+
+                    // idem 2ème cellule
+                    TextView tv4 = new TextView(WatchActivity.this);
+                    tv4.setText(player.getLnameP());
+                    tv4.setGravity(Gravity.CENTER);
+                    tv4.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+
+                    //TODO:: AJOUTER UN BOUTON + ADD INTERACTION -> Valider passage -> ASYNC TASK POST
+                    Button btnValid = new Button(WatchActivity.this);
+                    btnValid.setGravity(Gravity.CENTER);
+                    btnValid.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+                    // ajout des cellules à la ligne
+                    tableRow1.addView(tv3);
+                    tableRow1.addView(tv4);
+                    tableRow1.addView(btnValid);
+                    // ajout de la ligne au tableau
+                    tableLayoutW.addView(tableRow1);
+            }
+            if(exception != null)
+            {
+                Toast.makeText(WatchActivity.this,exception.getMessage(),Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                Toast.makeText(WatchActivity.this,"Affichage en cours",Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    public class MyWebAsyncTaskOk extends AsyncTask {
+        String resultat;
+        String url;
+        Exception exception;
+
+        public MyWebAsyncTaskOk(String url) {
             this.url = url;
         }
 
@@ -125,30 +205,30 @@ public class WatchActivity extends AppCompatActivity {
             ResultBean myResult = jsonResult.fromJson(resultat,ResultBean.class);
             ArrayList<PlayerBean> listePlayerBean = myResult.getResults();
             for(PlayerBean player: listePlayerBean) {
-                    TableRow tableRow1 = new TableRow(WatchActivity.this);
-                    TextView tv3 = new TextView(WatchActivity.this); // création cellule
-                    tv3.setText(player.getFnameP()); // ajout du texte
-                    tv3.setGravity(Gravity.CENTER); // centrage dans la cellule
-                    // adaptation de la largeur de colonne à l'écran :
-                    tv3.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+                TableRow tableRow1 = new TableRow(WatchActivity.this);
+                TextView tv3 = new TextView(WatchActivity.this); // création cellule
+                tv3.setText(player.getFnameP()); // ajout du texte
+                tv3.setGravity(Gravity.CENTER); // centrage dans la cellule
+                // adaptation de la largeur de colonne à l'écran :
+                tv3.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
 
-                    // idem 2ème cellule
-                    TextView tv4 = new TextView(WatchActivity.this);
-                    tv4.setText(player.getLnameP());
-                    tv4.setGravity(Gravity.CENTER);
-                    tv4.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+                // idem 2ème cellule
+                TextView tv4 = new TextView(WatchActivity.this);
+                tv4.setText(player.getLnameP());
+                tv4.setGravity(Gravity.CENTER);
+                tv4.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
 
-                    //TODO:: AJOUTER UN BOUTON + ADD INTERACTION -> Valider passage -> ASYNC TASK POST
-                    TextView tv5 = new TextView(WatchActivity.this);
-                    tv5.setText("TODO:: ADD BOUTON");
-                    tv5.setGravity(Gravity.CENTER);
-                    tv5.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
-                    // ajout des cellules à la ligne
-                    tableRow1.addView(tv3);
-                    tableRow1.addView(tv4);
+                //TODO:: AJOUTER UN BOUTON + ADD INTERACTION -> Valider passage -> ASYNC TASK POST
+                TextView tv5 = new TextView(WatchActivity.this);
+                tv5.setText("TODO:: ADD BOUTON");
+                tv5.setGravity(Gravity.CENTER);
+                tv5.setLayoutParams( new TableRow.LayoutParams( 0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1 ) );
+                // ajout des cellules à la ligne
+                tableRow1.addView(tv3);
+                tableRow1.addView(tv4);
 
-                    // ajout de la ligne au tableau
-                    tableLayoutW.addView(tableRow1);
+                // ajout de la ligne au tableau
+                tableLayoutW.addView(tableRow1);
             }
             if(exception != null)
             {
@@ -160,4 +240,6 @@ public class WatchActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

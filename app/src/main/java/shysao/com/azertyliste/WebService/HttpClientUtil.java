@@ -15,7 +15,6 @@ import okhttp3.Response;
 public class HttpClientUtil {
 
     public static String sendGetOkHttpRequest(String url) throws Exception {
-            Log.w( "tag","url : " + url);
             OkHttpClient client = new OkHttpClient();
     //Création de la requete
             Request request = new Request.Builder().url(url).build();
